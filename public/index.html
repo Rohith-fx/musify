@@ -1,0 +1,526 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Musify - Ad-Free Premium Music</title>
+  <meta name="description" content="Musify — the ad-free, premium music streaming experience with a beautiful mobile-first player.">
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+  <!-- Lucide Icons -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <!-- Styles -->
+  <link rel="stylesheet" href="css/styles.css">
+  <script src="js/directors.js"></script>
+</head>
+<body>
+
+  <!-- ========= AUTH SCREEN ========= -->
+  <div id="auth-screen" class="auth-container">
+    <div class="auth-card">
+      <div class="auth-header">
+        <div class="logo">
+          <i data-lucide="music-4" class="logo-icon"></i>
+          <span>Musify</span>
+        </div>
+        <p class="tagline">Ad-Free Premium Music</p>
+      </div>
+
+      <!-- Login Form -->
+      <form id="login-form" class="auth-form active">
+        <h2>Welcome back</h2>
+        <p class="form-desc">Log in to your account</p>
+        <div class="input-group">
+          <label for="login-username">Username</label>
+          <div class="input-wrapper">
+            <i data-lucide="user"></i>
+            <input type="text" id="login-username" placeholder="Enter username" required>
+          </div>
+        </div>
+        <div class="input-group">
+          <label for="login-password">Password</label>
+          <div class="input-wrapper">
+            <i data-lucide="lock"></i>
+            <input type="password" id="login-password" placeholder="Enter password" required>
+          </div>
+        </div>
+        <button type="submit" class="btn btn-primary btn-block">
+          <span>Log In</span>
+          <i data-lucide="arrow-right"></i>
+        </button>
+        <p class="switch-auth">Don't have an account? <a href="#" id="switch-to-register">Sign Up</a></p>
+      </form>
+
+      <!-- Register Form -->
+      <form id="register-form" class="auth-form">
+        <h2>Create account</h2>
+        <p class="form-desc">Join Musify for free</p>
+        <div class="input-group">
+          <label for="register-username">Username</label>
+          <div class="input-wrapper">
+            <i data-lucide="user"></i>
+            <input type="text" id="register-username" placeholder="Choose a username" required minlength="3">
+          </div>
+        </div>
+        <div class="input-group">
+          <label for="register-password">Password</label>
+          <div class="input-wrapper">
+            <i data-lucide="lock"></i>
+            <input type="password" id="register-password" placeholder="Min 6 characters" required minlength="6">
+          </div>
+        </div>
+        <button type="submit" class="btn btn-primary btn-block">
+          <span>Sign Up</span>
+          <i data-lucide="user-plus"></i>
+        </button>
+        <p class="switch-auth">Already have an account? <a href="#" id="switch-to-login">Log In</a></p>
+      </form>
+
+      <div class="auth-footer">
+        <i data-lucide="shield-check"></i>
+        <span>Secure &amp; Ad-Free</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- ========= ONBOARDING SCREEN ========= -->
+  <div id="onboarding-screen" class="onboarding-overlay hidden">
+    <div class="onboarding-inner">
+      <div class="onboarding-top">
+        <div class="onboarding-logo">
+          <i data-lucide="music-4"></i>
+          <span>Musify</span>
+        </div>
+        <h1 class="onboarding-title">Your Music, Your Way</h1>
+        <p class="onboarding-sub">Pick your favorite music directors — we'll build your perfect playlist</p>
+        <div class="onboarding-selected-bar">
+          <span id="ob-count">Select at least 1 director</span>
+        </div>
+      </div>
+      <div class="onboarding-directors" id="ob-directors-list">
+        <!-- Populated by JS -->
+      </div>
+      <div class="onboarding-actions">
+        <button id="ob-skip-btn" class="ob-skip-btn">Skip for now</button>
+        <button id="ob-continue-btn" class="ob-continue-btn" disabled>
+          Continue
+          <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="9,18 15,12 9,6"/></svg>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ========= MAIN APP ========= -->
+  <div id="app-screen" class="app-container hidden">
+
+    <!-- Top Header -->
+    <header class="top-header">
+      <div class="top-header-left">
+        <div class="logo-small">
+          <i data-lucide="music-4" class="logo-icon-sm"></i>
+          <span>Musify</span>
+        </div>
+      </div>
+      <div class="top-header-center">
+        <div class="search-bar-container hidden" id="header-search-bar">
+          <i data-lucide="search"></i>
+          <input type="text" id="search-input" placeholder="Artists, songs, podcasts...">
+        </div>
+        <span id="welcome-message" class="header-greeting">Good day!</span>
+      </div>
+      <div class="top-header-right">
+        <div class="header-avatar" id="header-avatar-btn">
+          <i data-lucide="user"></i>
+        </div>
+      </div>
+    </header>
+
+    <!-- Profile Dropdown -->
+    <div id="profile-dropdown" class="profile-dropdown hidden">
+      <div class="profile-dropdown-user">
+        <div class="avatar-circle">
+          <i data-lucide="user"></i>
+        </div>
+        <div>
+          <span id="profile-username" class="pd-username">User</span>
+          <span class="pd-badge">Premium</span>
+        </div>
+      </div>
+      <div class="pd-divider"></div>
+      <button id="logout-btn" class="pd-logout-btn">
+        <i data-lucide="log-out"></i>
+        <span>Log Out</span>
+      </button>
+    </div>
+
+    <!-- Main Content -->
+    <main class="main-content" id="main-content">
+
+      <!-- HOME TAB -->
+      <section id="tab-home" class="tab-content active">
+        <div class="home-hero">
+          <div class="home-hero-text">
+            <h1>Your Music,<br><span class="gradient-text">Your World</span></h1>
+            <p>Ad-free streaming. No interruptions.</p>
+          </div>
+          <button class="hero-play-circle" id="hero-play-btn">
+            <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="currentColor" stroke="none"><polygon points="5,3 19,12 5,21"/></svg>
+          </button>
+        </div>
+
+        <!-- FOR YOU (recommendations) -->
+        <div id="for-you-section" class="section-block" style="display:none">
+          <div class="section-header-row">
+            <h2 class="section-title">For You 🎯</h2>
+            <span class="section-see-all" onclick="showOnboarding()">Edit taste</span>
+          </div>
+          <div id="for-you-rows" class="for-you-rows">
+            <!-- Populated dynamically -->
+          </div>
+        </div>
+
+        <div class="section-block">
+          <div class="section-header-row">
+            <h2 class="section-title">Discover Tracks</h2>
+            <span class="section-see-all">See all</span>
+          </div>
+          <div id="tracks-grid" class="tracks-grid">
+            <!-- Tracks populated dynamically -->
+          </div>
+        </div>
+      </section>
+
+      <!-- SEARCH TAB -->
+      <section id="tab-search" class="tab-content">
+        <div class="search-page-header">
+          <h2>Search</h2>
+          <div class="search-input-large">
+            <i data-lucide="search"></i>
+            <input type="text" id="search-input-large-field" placeholder="What do you want to listen to?">
+          </div>
+        </div>
+
+        <!-- Empty / browse state before typing -->
+        <div id="search-browse-hint" class="search-browse-hint">
+          <i data-lucide="search"></i>
+          <p>Search songs, albums, or artists</p>
+        </div>
+
+        <!-- Full albums found — shown prominently at top -->
+        <div class="section-block" id="search-albums-section" style="display:none">
+          <h3 class="section-title">Albums</h3>
+          <div id="search-albums-container"></div>
+        </div>
+
+        <!-- Individual song matches -->
+        <div class="section-block" id="search-songs-section" style="display:none">
+          <h3 id="search-results-title" class="section-title">Songs</h3>
+          <div id="search-results-list" class="search-song-list">
+            <!-- Populated dynamically -->
+          </div>
+        </div>
+
+        <!-- Global YouTube results -->
+        <div class="section-block" id="global-results-section" style="display:none">
+          <h3 class="section-title">Global (YouTube)</h3>
+          <div id="global-search-results-grid" class="search-song-list">
+            <p class="empty-hint">Type to search globally.</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- LIKED SONGS TAB -->
+      <section id="tab-liked" class="tab-content">
+        <div class="page-hero liked-hero">
+          <div class="liked-hero-icon">
+            <i data-lucide="heart" fill="currentColor"></i>
+          </div>
+          <div class="page-hero-meta">
+            <span class="page-hero-label">PLAYLIST</span>
+            <h1 class="page-hero-title">Liked Songs</h1>
+            <p id="liked-count-text" class="page-hero-count">0 songs</p>
+          </div>
+        </div>
+        <div id="liked-songs-list-container" class="songs-list-container">
+          <!-- Liked songs -->
+        </div>
+      </section>
+
+      <!-- LIBRARY TAB -->
+      <section id="tab-library" class="tab-content">
+        <div class="library-header">
+          <h2>Your Library</h2>
+          <button id="create-playlist-btn" class="create-playlist-btn" title="Create Playlist">
+            <i data-lucide="plus"></i>
+          </button>
+        </div>
+        <ul id="playlist-list" class="library-playlist-list">
+          <!-- Playlists populated dynamically -->
+        </ul>
+      </section>
+
+      <!-- PLAYLIST DETAIL TAB -->
+      <section id="tab-playlist-detail" class="tab-content">
+        <div class="back-nav" onclick="switchTab('library')">
+          <i data-lucide="arrow-left"></i>
+          <span>Your Library</span>
+        </div>
+        <div class="page-hero playlist-hero">
+          <div class="playlist-hero-icon">
+            <i data-lucide="music-2"></i>
+          </div>
+          <div class="page-hero-meta">
+            <span class="page-hero-label">PLAYLIST</span>
+            <h1 id="playlist-detail-title" class="page-hero-title">Playlist</h1>
+            <p id="playlist-detail-count" class="page-hero-count">0 songs</p>
+            <button id="delete-current-playlist-btn" class="btn-delete-playlist">
+              <i data-lucide="trash-2"></i>
+              <span>Delete</span>
+            </button>
+          </div>
+        </div>
+        <div id="playlist-songs-list-container" class="songs-list-container">
+          <!-- Playlist songs -->
+        </div>
+      </section>
+
+    </main>
+
+    <!-- Mini Player (shown when something is playing) -->
+    <div id="mini-player" class="mini-player hidden" onclick="openNowPlaying()">
+      <div class="mini-player-progress" id="mini-player-progress">
+        <div class="mini-player-progress-fill" id="mini-progress-fill"></div>
+      </div>
+      <div class="mini-player-body">
+        <div class="mini-cover-wrap">
+          <img id="mini-cover-img" src="https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=120" alt="cover">
+        </div>
+        <div class="mini-info">
+          <span id="mini-title" class="mini-title">Not Playing</span>
+          <span id="mini-artist" class="mini-artist">Select a song</span>
+        </div>
+        <div class="mini-controls" onclick="event.stopPropagation()">
+          <button id="mini-play-btn" class="mini-control-btn" onclick="togglePlayPause()">
+            <svg class="icon-play" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="currentColor" stroke="none"><polygon points="5,3 19,12 5,21"/></svg>
+          </button>
+          <button class="mini-control-btn" onclick="playNext()">
+            <i data-lucide="skip-forward"></i>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Bottom Navigation -->
+    <nav class="bottom-nav">
+      <a href="#" class="nav-item active" data-tab="home" id="nav-home">
+        <i data-lucide="home"></i>
+        <span>Home</span>
+      </a>
+      <a href="#" class="nav-item" data-tab="search" id="nav-search">
+        <i data-lucide="search"></i>
+        <span>Search</span>
+      </a>
+      <a href="#" class="nav-item" data-tab="liked" id="nav-liked">
+        <i data-lucide="heart"></i>
+        <span>Liked</span>
+      </a>
+      <a href="#" class="nav-item" data-tab="library" id="nav-library">
+        <i data-lucide="library"></i>
+        <span>Library</span>
+      </a>
+    </nav>
+
+    <!-- ====== FULL SCREEN NOW PLAYING ====== -->
+    <div id="now-playing-screen" class="now-playing-screen hidden">
+      <!-- Blurred Background -->
+      <div class="np-backdrop" id="np-backdrop"></div>
+
+      <div class="np-content">
+        <!-- Header -->
+        <div class="np-header">
+          <button class="np-btn-icon" onclick="closeNowPlaying()">
+            <i data-lucide="chevron-down"></i>
+          </button>
+          <div class="np-header-title">
+            <span class="np-playing-from">NOW PLAYING</span>
+          </div>
+          <button class="np-btn-icon" id="np-queue-btn" onclick="openQueueView()">
+            <i data-lucide="list-music"></i>
+          </button>
+        </div>
+
+        <!-- Album Art — rotates while playing -->
+        <div class="np-artwork-section">
+          <div class="np-artwork-wrapper" id="np-artwork-wrapper">
+            <img id="player-cover" src="https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=500" alt="Album Cover" class="np-artwork-img">
+          </div>
+        </div>
+
+        <!-- Song Info -->
+        <div class="np-info-row">
+          <div class="np-song-details">
+            <h2 id="player-title" class="np-song-title">Not Playing</h2>
+            <p id="player-artist" class="np-song-artist">Select a song to play</p>
+          </div>
+          <button id="player-like-btn" class="np-like-btn">
+            <i data-lucide="heart"></i>
+          </button>
+        </div>
+
+        <!-- Progress Bar -->
+        <div class="np-progress-section">
+          <input type="range" id="progress-slider" class="np-progress-slider" min="0" max="100" value="0">
+          <div class="np-time-row">
+            <span id="current-time">0:00</span>
+            <span id="total-time">0:00</span>
+          </div>
+        </div>
+
+        <!-- Controls -->
+        <div class="np-controls-row">
+          <button id="shuffle-btn" class="np-ctrl-secondary" title="Shuffle">
+            <i data-lucide="shuffle"></i>
+          </button>
+          <button id="prev-btn" class="np-ctrl-main" title="Previous">
+            <i data-lucide="skip-back"></i>
+          </button>
+          <button id="play-btn" class="np-play-btn" title="Play/Pause">
+            <svg xmlns="http://www.w3.org/2000/svg" width="26" height="26" viewBox="0 0 24 24" fill="currentColor" stroke="none"><polygon points="5,3 19,12 5,21"/></svg>
+          </button>
+          <button id="next-btn" class="np-ctrl-main" title="Next">
+            <i data-lucide="skip-forward"></i>
+          </button>
+          <button id="repeat-btn" class="np-ctrl-secondary" title="Repeat">
+            <i data-lucide="repeat"></i>
+          </button>
+        </div>
+
+        <!-- Volume -->
+        <div class="np-volume-row">
+          <button id="mute-btn" class="np-vol-icon">
+            <i data-lucide="volume-1"></i>
+          </button>
+          <input type="range" id="volume-slider" class="np-volume-slider" min="0" max="100" value="80">
+          <i data-lucide="volume-2" class="np-vol-icon-r"></i>
+        </div>
+
+        <!-- Mini Visualizer (hidden but kept for JS compat) -->
+        <div class="audio-visualizer-mini" id="mini-visualizer">
+          <div class="bar"></div><div class="bar"></div>
+          <div class="bar"></div><div class="bar"></div>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- /app-screen -->
+
+  <!-- Audio Engine -->
+  <audio id="audio-player"></audio>
+  <div id="yt-player-container" style="position:fixed;width:1px;height:1px;bottom:0;left:0;opacity:0;pointer-events:none;z-index:-1;"></div>
+
+  <!-- Toast -->
+  <div id="toast-notification" class="toast hidden">
+    <span id="toast-message">Notification</span>
+  </div>
+
+  <!-- ========= SONG CONTEXT MENU (Bottom Sheet) ========= -->
+  <div id="ctx-overlay" class="ctx-overlay hidden" onclick="closeContextMenu()"></div>
+  <div id="ctx-sheet" class="ctx-sheet">
+    <!-- Drag handle -->
+    <div class="ctx-handle"></div>
+
+    <!-- Song header -->
+    <div class="ctx-song-header">
+      <img id="ctx-song-img" class="ctx-song-img" src="" alt="">
+      <div class="ctx-song-details">
+        <div id="ctx-song-title" class="ctx-song-name"></div>
+        <div id="ctx-song-artist" class="ctx-song-by"></div>
+      </div>
+      <button id="ctx-like-btn" class="ctx-quick-like" onclick="ctxToggleLike()">
+        <svg id="ctx-heart-svg" xmlns="http://www.w3.org/2000/svg" width="20" height="20"
+          viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>
+        </svg>
+      </button>
+    </div>
+
+    <div class="ctx-sep"></div>
+
+    <!-- Main view -->
+    <div id="ctx-main-view">
+      <button class="ctx-option" onclick="ctxPlayNow()">
+        <div class="ctx-opt-icon ctx-icon-play">
+          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="currentColor" stroke="none"><polygon points="5,3 19,12 5,21"/></svg>
+        </div>
+        <span>Play Now</span>
+        <i data-lucide="chevron-right" class="ctx-opt-arrow"></i>
+      </button>
+      <button class="ctx-option" onclick="ctxPlayNext()">
+        <div class="ctx-opt-icon ctx-icon-next">
+          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="5,4 15,12 5,20"/><line x1="19" y1="5" x2="19" y2="19"/></svg>
+        </div>
+        <span>Play Next</span>
+        <i data-lucide="chevron-right" class="ctx-opt-arrow"></i>
+      </button>
+      <button class="ctx-option ctx-option-highlight" onclick="ctxAddToQueue()">
+        <div class="ctx-opt-icon ctx-icon-queue">
+          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg>
+        </div>
+        <span>Add to Queue</span>
+        <i data-lucide="chevron-right" class="ctx-opt-arrow"></i>
+      </button>
+      <div class="ctx-sep-light"></div>
+      <button class="ctx-option" onclick="ctxGoToPlaylist()">
+        <div class="ctx-opt-icon ctx-icon-playlist">
+          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg>
+        </div>
+        <span>Add to Playlist</span>
+        <i data-lucide="chevron-right" class="ctx-opt-arrow"></i>
+      </button>
+      <button class="ctx-option" onclick="ctxShare()">
+        <div class="ctx-opt-icon ctx-icon-share">
+          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>
+        </div>
+        <span>Share Song</span>
+        <i data-lucide="chevron-right" class="ctx-opt-arrow"></i>
+      </button>
+      <button class="ctx-option ctx-option-danger" onclick="ctxRemoveFromPlaylist()" id="ctx-remove-opt" style="display:none">
+        <div class="ctx-opt-icon ctx-icon-remove">
+          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/></svg>
+        </div>
+        <span>Remove from Playlist</span>
+      </button>
+    </div>
+
+    <!-- Playlist sub-view -->
+    <div id="ctx-playlist-view" class="ctx-playlist-view hidden">
+      <button class="ctx-back-btn" onclick="ctxBackToMain()">
+        <i data-lucide="arrow-left"></i>
+        <span>Add to Playlist</span>
+      </button>
+      <div id="ctx-playlist-options" class="ctx-playlist-options"></div>
+    </div>
+  </div>
+
+  <!-- ========= QUEUE VIEW (Bottom Sheet / Full View) ========= -->
+  <div id="queue-overlay" class="ctx-overlay hidden" onclick="closeQueueView()"></div>
+  <div id="queue-sheet" class="ctx-sheet queue-sheet">
+    <div class="ctx-handle"></div>
+    <div class="queue-header">
+      <h2>Playing Next</h2>
+      <button class="queue-close-btn" onclick="closeQueueView()">
+        <i data-lucide="x"></i>
+      </button>
+    </div>
+    <div id="queue-list-container" class="queue-list-container">
+      <!-- Populated by JS -->
+    </div>
+  </div>
+
+
+  <script>lucide.createIcons();</script>
+  <script src="js/app.js"></script>
+</body>
+</html>
