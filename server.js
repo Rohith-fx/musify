@@ -155,68 +155,27 @@ app.post('/api/preferences', authenticateToken, (req, res) => {
 
 // TRACKS API ENDPOINTS
 
-// Helper to search YouTube and extract track info
+const yts = require('yt-search');
+
+// Helper to search YouTube and extract track info using yt-search
 async function searchYouTube(query) {
-  const url = `https://www.youtube.com/results?search_query=${encodeURIComponent(query)}`;
+  // Prioritize indian tamil songs if not already explicitly stated
+  const isTamilContext = query.toLowerCase().includes('tamil');
+  const searchQuery = isTamilContext ? query : query + ' tamil song';
+  
   try {
-    const res = await fetch(url, {
-      headers: {
-        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/115.0.0.0 Safari/537.36'
-      }
-    });
-    const html = await res.text();
-    const regex = /var ytInitialData = ({.*?});/s;
-    const match = html.match(regex);
-    if (!match) return [];
-
-    const data = JSON.parse(match[1]);
-    const contents = data.contents?.twoColumnBrowseResultsRenderer || data.contents?.twoColumnSearchResultsRenderer;
-    if (!contents) return [];
-
-    let videoRows = [];
-    try {
-      // Navigate down standard YouTube search results tree
-      videoRows = contents.primaryContents?.sectionListRenderer?.contents[0]?.itemSectionRenderer?.contents || [];
-    } catch (e) {
-      return [];
-    }
-
-    const results = [];
-    for (const row of videoRows) {
-      if (row.videoRenderer) {
-        const video = row.videoRenderer;
-        const title = video.title?.runs?.[0]?.text || "Unknown Title";
-        const videoId = video.videoId;
-        if (!videoId) continue;
-
-        const artist = video.ownerText?.runs?.[0]?.text || "YouTube Music";
-
-        // Simple duration parser: "5:12" -> 312 seconds
-        let durationSec = 180;
-        const durationText = video.lengthText?.simpleText;
-        if (durationText) {
-          const parts = durationText.split(':').map(Number);
-          if (parts.length === 2) {
-            durationSec = parts[0] * 60 + parts[1];
-          } else if (parts.length === 3) {
-            durationSec = parts[0] * 3600 + parts[1] * 60 + parts[2];
-          }
-        }
-
-        const coverUrl = video.thumbnail?.thumbnails?.[0]?.url || "https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=500";
-
-        results.push({
-          title,
-          artist,
-          album: "Global Album",
-          duration: durationSec,
-          cover_url: coverUrl,
-          audio_url: `youtube:${videoId}`,
-          global: true
-        });
-      }
-    }
-    return results;
+    const r = await yts(searchQuery);
+    const videos = r.videos.slice(0, 30);
+    
+    return videos.map(video => ({
+      title: video.title || "Unknown Title",
+      artist: video.author?.name || "YouTube Music",
+      album: "Global Album",
+      duration: video.seconds || 180,
+      cover_url: video.thumbnail || "https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=500",
+      audio_url: `youtube:${video.videoId}`,
+      global: true
+    }));
   } catch (err) {
     console.error("YouTube search error:", err);
     return [];

@@ -591,7 +591,10 @@ function closeNowPlaying() {
 }
 
 // ── SEARCH ──────────────────────────────────────────────
+let currentSearchQuery = '';
+
 async function performSearch(query) {
+  currentSearchQuery = query;
   const browseHint     = document.getElementById('search-browse-hint');
   const albumsSection  = document.getElementById('search-albums-section');
   const albumContainer = document.getElementById('search-albums-container');
@@ -612,6 +615,7 @@ async function performSearch(query) {
 
   try {
     const local = await apiRequest(`/api/tracks?search=${encodeURIComponent(query)}`);
+    if (currentSearchQuery !== query) return; // Prevent race conditions
 
 
     // ── 1. ALBUM SECTION (shown first, auto-expanded) ────
@@ -682,6 +686,7 @@ async function performSearch(query) {
     globalSection && (globalSection.style.display = '');
     globalGrid.innerHTML = `<p class="empty-hint">Searching globally...</p>`;
     const global = await apiRequest(`/api/tracks/global-search?q=${encodeURIComponent(query)}`);
+    if (currentSearchQuery !== query) return; // Prevent race conditions
     state.globalSearchResults = global;
     globalGrid.innerHTML = global.length
       ? global.map((t, i) => createGlobalListItemHTML(t, i)).join('')
@@ -760,13 +765,17 @@ function createGlobalListItemHTML(track, index) {
     </div>`;
 }
 
+let searchTimeout = null;
+
 searchInputLargeField.addEventListener('input', (e) => {
   searchInput.value = e.target.value;
-  performSearch(e.target.value);
+  clearTimeout(searchTimeout);
+  searchTimeout = setTimeout(() => performSearch(e.target.value), 400);
 });
 searchInput.addEventListener('input', (e) => {
   searchInputLargeField.value = e.target.value;
-  performSearch(e.target.value);
+  clearTimeout(searchTimeout);
+  searchTimeout = setTimeout(() => performSearch(e.target.value), 400);
 });
 
 // ── LIKED SONGS ─────────────────────────────────────────
