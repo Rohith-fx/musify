@@ -1173,6 +1173,32 @@ img {
   height: 18px;
 }
 
+/* Mini shuffle button in mini player */
+#mini-shuffle-btn {
+  background: none;
+  border: none;
+  color: var(--text-muted);
+  cursor: pointer;
+  padding: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: color 0.2s;
+}
+
+#mini-shuffle-btn:hover {
+  color: var(--primary);
+}
+
+#mini-shuffle-btn.active {
+  color: var(--primary);
+}
+
+#mini-shuffle-btn svg {
+  width: 16px;
+  height: 16px;
+}
+
 /* ==============================
    MINI PLAYER
    ============================== */

@@ -1435,6 +1435,21 @@ function shuffleQueue(queue, active) {
   state.activeQueue = s; state.queueIndex = 0;
 }
 
+// Toggle shuffle function for mini player button
+function toggleShuffle() {
+  state.isShuffle = !state.isShuffle;
+  const cur = state.activeQueue[state.queueIndex];
+  if (state.isShuffle) {
+    shuffleQueue(state.originalQueue, cur);
+    showToast('Shuffle on');
+  } else {
+    state.activeQueue = [...state.originalQueue];
+    state.queueIndex = state.activeQueue.findIndex(t => t.id === cur?.id);
+    showToast('Shuffle off');
+  }
+  updatePlayerUI();
+}
+
 repeatBtn.addEventListener('click', () => {
   if (!state.isRepeat) { state.isRepeat = 'all'; showToast('Repeat all'); }
   else if (state.isRepeat === 'all') { state.isRepeat = 'one'; showToast('Repeat song'); }
@@ -1534,21 +1549,18 @@ async function addGlobalTrackToPlaylist(e, index, playlistId) {
 }
 
 // ── MEDIA SESSION API FOR BACKGROUND PLAYBACK ─────────────
-function updateMediaSession(now = null, duration = null) {
+function updateMediaSession() {
   if (!('mediaSession' in navigator)) return;
 
   const track = state.activeQueue[state.queueIndex];
-  if (!track) {
-    navigator.mediaSession = null;
-    return;
-  }
+  if (!track) return;
 
   const title = track.title || 'Unknown Title';
   const artist = track.artist || 'Unknown Artist';
   const album = track.album || 'Unknown Album';
   const artwork = track.cover_url
-    ? { src: track.cover_url, sizes: '512x512', type: 'image/jpeg' }
-    : null;
+    ? [{ src: track.cover_url, sizes: '512x512', type: 'image/jpeg' }]
+    : [{ src: 'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=512', sizes: '512x512', type: 'image/jpeg' }];
 
   navigator.mediaSession.metadata = new MediaMetadata({
     title: title,
@@ -1557,19 +1569,45 @@ function updateMediaSession(now = null, duration = null) {
     artwork: artwork
   });
 
-  if (now !== null && duration !== null) {
-    navigator.mediaSession.position = now;
-    navigator.mediaSession.setPositionState({
-      duration: duration,
-      seekable: [{ start: 0, end: duration }]
-    });
-  }
+  // Set position state for lock screen controls
+  try {
+    const dur = isCurrentTrackYoutube() ? (ytPlayerReady ? ytPlayer.getDuration() : 0) : audioPlayer.duration;
+    const cur = isCurrentTrackYoutube() ? (ytPlayerReady ? ytPlayer.getCurrentTime() : 0) : audioPlayer.currentTime;
+    if (dur && dur > 0) {
+      navigator.mediaSession.setPositionState({
+        duration: dur,
+        playbackRate: 1,
+        position: cur
+      });
+    }
+  } catch (_) { }
 
-  // Handle playback controls
-  navigator.mediaSession.setActionState('play', state.isPlaying ? 'paused' : 'playing');
-  navigator.mediaSession.setActionState('pause', state.isPlaying ? 'paused' : 'playing');
-  navigator.mediaSession.setActionState('next', 'enabled');
-  navigator.mediaSession.setActionState('previous', 'enabled');
+  // Handle media control actions
+  navigator.mediaSession.setActionHandler('play', () => {
+    if (!state.isPlaying) togglePlayPause();
+  });
+
+  navigator.mediaSession.setActionHandler('pause', () => {
+    if (state.isPlaying) togglePlayPause();
+  });
+
+  navigator.mediaSession.setActionHandler('previoustrack', () => {
+    prevBtn.click();
+  });
+
+  navigator.mediaSession.setActionHandler('nexttrack', () => {
+    nextBtn.click();
+  });
+
+  navigator.mediaSession.setActionHandler('seekto', (details) => {
+    if (details.seekTime !== undefined) {
+      if (isCurrentTrackYoutube() && ytPlayerReady) {
+        ytPlayer.seekTo(details.seekTime, true);
+      } else {
+        audioPlayer.currentTime = details.seekTime;
+      }
+    }
+  });
 }
 
 // ── HIDE MEDIA SESSION WHEN NOT PLAYING ───────────────────
