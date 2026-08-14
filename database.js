@@ -1,8 +1,8 @@
-const { DatabaseSync } = require('node:sqlite');
+const Database = require('better-sqlite3');
 const path = require('path');
 
 const dbPath = path.join(__dirname, 'musify.db');
-const db = new DatabaseSync(dbPath);
+const db = new Database(dbPath);
 
 console.log(`Database initialized at: ${dbPath}`);
 
@@ -77,10 +77,10 @@ function seedTracks() {
     }
     // Wipe old synthetic/soundhelix tracks and replace with real songs
     console.log('Wiping old synthetic tracks. Re-seeding with real songs...');
-    try { db.exec('DELETE FROM likes'); } catch (_) {}
-    try { db.exec('DELETE FROM playlist_tracks'); } catch (_) {}
+    try { db.exec('DELETE FROM likes'); } catch (_) { }
+    try { db.exec('DELETE FROM playlist_tracks'); } catch (_) { }
     db.exec('DELETE FROM tracks');
-    try { db.exec("DELETE FROM sqlite_sequence WHERE name='tracks'"); } catch (_) {}
+    try { db.exec("DELETE FROM sqlite_sequence WHERE name='tracks'"); } catch (_) { }
   } else {
     console.log('Seeding real popular English songs...');
   }
