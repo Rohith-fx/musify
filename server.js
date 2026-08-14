@@ -162,11 +162,11 @@ async function searchYouTube(query) {
   // Prioritize indian tamil songs if not already explicitly stated
   const isTamilContext = query.toLowerCase().includes('tamil');
   const searchQuery = isTamilContext ? query : query + ' tamil song';
-  
+
   try {
     const r = await yts(searchQuery);
     const videos = r.videos.slice(0, 30);
-    
+
     return videos.map(video => ({
       title: video.title || "Unknown Title",
       artist: video.author?.name || "YouTube Music",
@@ -283,6 +283,162 @@ app.get('/api/tracks', optionalAuthenticate, (req, res) => {
   }
 });
 
+// ── ALBUM API ENDPOINT ───────────────────────────────────────────────────────
+// Get all tracks for a specific album (movie)
+app.get('/api/albums/:albumName/tracks', optionalAuthenticate, (req, res) => {
+  const albumName = req.params.albumName;
+  const userId = req.user ? req.user.id : null;
+
+  try {
+    let tracks;
+    if (userId) {
+      tracks = db.prepare(`
+        SELECT t.*, (l.user_id IS NOT NULL) AS liked
+        FROM tracks t
+        LEFT JOIN likes l ON t.id = l.track_id AND l.user_id = ?
+        WHERE t.album = ?
+      `).all(userId, albumName);
+    } else {
+      tracks = db.prepare(`
+        SELECT *, 0 AS liked FROM tracks WHERE album = ?
+      `).all(albumName);
+    }
+
+    tracks = tracks.map(t => ({ ...t, liked: !!t.liked }));
+    res.json({ album: albumName, tracks });
+  } catch (error) {
+    console.error('Error fetching album tracks:', error);
+    res.status(500).json({ error: 'Server error fetching album tracks' });
+  }
+});
+
+// Get all distinct albums
+app.get('/api/albums', optionalAuthenticate, (req, res) => {
+  try {
+    const albums = db.prepare(`
+      SELECT album, COUNT(*) AS track_count, MIN(cover_url) AS cover_url, MIN(artist) AS artist
+      FROM tracks
+      WHERE album IS NOT NULL AND album != ''
+      GROUP BY album
+      ORDER BY album
+    `).all();
+    res.json(albums);
+  } catch (error) {
+    console.error('Error fetching albums:', error);
+    res.status(500).json({ error: 'Server error fetching albums' });
+  }
+});
+
+// ── AUTO-SYNC: PERIODICALLY FETCH NEW SONGS ──────────────────────────────────
+// Reuses the existing searchYouTube integration to periodically check for
+// newly released tracks/albums and add them to the catalog automatically.
+
+// Director search queries used for auto-sync (mirrors the frontend directors.js)
+const AUTO_SYNC_QUERIES = [
+  'Anirudh Ravichander songs',
+  'AR Rahman Tamil hit songs',
+  'Harris Jayaraj hit songs',
+  'Yuvan Shankar Raja songs',
+  'D Imman superhit Tamil songs',
+  'Ilaiyaraaja classic songs',
+  'GV Prakash Kumar hit songs',
+  'Santhosh Narayanan songs',
+  'Vijay Antony songs',
+  'Pritam Bollywood hit songs',
+  'Vishal Shekhar best songs',
+  'Shankar Ehsaan Loy songs',
+  'Amit Trivedi hit songs',
+  'Sachin Jigar songs',
+  'AR Rahman Hindi songs',
+  'Hans Zimmer best music',
+  'John Williams iconic themes',
+  'Max Martin produced songs',
+  'Pharrell Williams songs',
+  'Quincy Jones classic music'
+];
+
+// Extract a reasonable album name from a YouTube video title
+function extractAlbumFromTitle(title) {
+  if (!title) return 'Global Album';
+  // Try to extract movie/album name from patterns like "Song - Movie" or "Song | Movie"
+  const patterns = [
+    /-\s*([^-|]+?)\s*(?:\(|\[|$)/i,   // "Song - Movie (something)"
+    /\|\s*([^|]+?)\s*(?:\(|\[|$)/i,   // "Song | Movie (something)"
+    /from\s+["']?([^"']+?)["']?\s*(?:\(|\[|$)/i, // "Song from 'Movie'"
+    /\(([^)]+)\)\s*$/i                // "Song (Movie)"
+  ];
+  for (const p of patterns) {
+    const m = title.match(p);
+    if (m && m[1] && m[1].trim().length > 1 && m[1].trim().length < 60) {
+      return m[1].trim();
+    }
+  }
+  return 'Global Album';
+}
+
+// Sync new songs from YouTube into the catalog
+async function syncNewSongs() {
+  console.log(`[Auto-Sync] Starting periodic song sync at ${new Date().toISOString()}...`);
+  let addedCount = 0;
+  let checkedCount = 0;
+
+  for (const query of AUTO_SYNC_QUERIES) {
+    try {
+      const results = await searchYouTube(query);
+      for (const track of results) {
+        checkedCount++;
+        // Skip if already in catalog
+        const existing = db.prepare('SELECT id FROM tracks WHERE audio_url = ?').get(track.audio_url);
+        if (existing) continue;
+
+        // Derive album name from title if possible
+        const album = extractAlbumFromTitle(track.title);
+        const lang = query.toLowerCase().includes('tamil') ? 'Tamil' : 'English';
+
+        try {
+          db.prepare(`
+            INSERT INTO tracks (title, artist, album, duration, cover_url, audio_url, language)
+            VALUES (?, ?, ?, ?, ?, ?, ?)
+          `).run(
+            track.title || 'Unknown Title',
+            track.artist || 'Unknown Artist',
+            album,
+            track.duration || 180,
+            track.cover_url || '',
+            track.audio_url,
+            lang
+          );
+          addedCount++;
+        } catch (err) {
+          // Ignore duplicate insert errors
+        }
+      }
+    } catch (err) {
+      console.error(`[Auto-Sync] Error syncing query "${query}":`, err.message);
+    }
+  }
+
+  console.log(`[Auto-Sync] Sync complete. Checked ${checkedCount} tracks, added ${addedCount} new songs.`);
+  return { checked: checkedCount, added: addedCount };
+}
+
+// Run initial sync shortly after server start (delayed to avoid startup contention)
+setTimeout(() => {
+  syncNewSongs().catch(err => console.error('[Auto-Sync] Initial sync error:', err));
+}, 30 * 1000); // 30 seconds after startup
+
+// Run periodic sync every 6 hours
+const SYNC_INTERVAL_MS = 6 * 60 * 60 * 1000; // 6 hours
+setInterval(() => {
+  syncNewSongs().catch(err => console.error('[Auto-Sync] Periodic sync error:', err));
+}, SYNC_INTERVAL_MS);
+
+// Manual trigger endpoint (useful for testing)
+app.post('/api/sync', (req, res) => {
+  syncNewSongs()
+    .then(result => res.json({ message: 'Sync completed', ...result }))
+    .catch(err => res.status(500).json({ error: 'Sync failed', details: err.message }));
+});
 
 // LIKES API ENDPOINTS
 

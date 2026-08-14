@@ -25,9 +25,9 @@ let state = {
 
 // ── SMOOTH ROTATION (requestAnimationFrame) ──────────────
 let _rotRafId = null;
-let _rotDeg   = 0;
-let _rotLast  = null;
-const ROT_SPD  = 360 / 28; // 1 full revolution per 28 seconds
+let _rotDeg = 0;
+let _rotLast = null;
+const ROT_SPD = 360 / 28; // 1 full revolution per 28 seconds
 
 function _rotFrame(now) {
   const dt = (now - _rotLast) / 1000;
@@ -49,66 +49,66 @@ function stopRotation() {
 }
 
 // ── DOM References ──────────────────────────────────────
-const authScreen          = document.getElementById('auth-screen');
-const appScreen           = document.getElementById('app-screen');
-const loginForm           = document.getElementById('login-form');
-const registerForm        = document.getElementById('register-form');
-const switchToRegister    = document.getElementById('switch-to-register');
-const switchToLogin       = document.getElementById('switch-to-login');
-const profileUsername     = document.getElementById('profile-username');
-const logoutBtn           = document.getElementById('logout-btn');
+const authScreen = document.getElementById('auth-screen');
+const appScreen = document.getElementById('app-screen');
+const loginForm = document.getElementById('login-form');
+const registerForm = document.getElementById('register-form');
+const switchToRegister = document.getElementById('switch-to-register');
+const switchToLogin = document.getElementById('switch-to-login');
+const profileUsername = document.getElementById('profile-username');
+const logoutBtn = document.getElementById('logout-btn');
 
-const navItems            = document.querySelectorAll('.nav-item');
-const tabContents         = document.querySelectorAll('.tab-content');
-const tracksGrid          = document.getElementById('tracks-grid');
-const searchInput         = document.getElementById('search-input');
-const headerSearchBar     = document.getElementById('header-search-bar');
+const navItems = document.querySelectorAll('.nav-item');
+const tabContents = document.querySelectorAll('.tab-content');
+const tracksGrid = document.getElementById('tracks-grid');
+const searchInput = document.getElementById('search-input');
+const headerSearchBar = document.getElementById('header-search-bar');
 const searchInputLargeField = document.getElementById('search-input-large-field');
-const searchResultsGrid   = document.getElementById('search-results-list'); // renamed to list
-const searchResultsTitle  = document.getElementById('search-results-title');
-const likedCountText      = document.getElementById('liked-count-text');
+const searchResultsGrid = document.getElementById('search-results-list'); // renamed to list
+const searchResultsTitle = document.getElementById('search-results-title');
+const likedCountText = document.getElementById('liked-count-text');
 const likedSongsListContainer = document.getElementById('liked-songs-list-container');
-const playlistList        = document.getElementById('playlist-list');
-const createPlaylistBtn   = document.getElementById('create-playlist-btn');
+const playlistList = document.getElementById('playlist-list');
+const createPlaylistBtn = document.getElementById('create-playlist-btn');
 const playlistDetailTitle = document.getElementById('playlist-detail-title');
 const playlistDetailCount = document.getElementById('playlist-detail-count');
 const deleteCurrentPlaylistBtn = document.getElementById('delete-current-playlist-btn');
 const playlistSongsListContainer = document.getElementById('playlist-songs-list-container');
-const welcomeMessage      = document.getElementById('welcome-message');
-const heroPlayBtn         = document.getElementById('hero-play-btn');
-const toastNotification   = document.getElementById('toast-notification');
-const toastMessage        = document.getElementById('toast-message');
+const welcomeMessage = document.getElementById('welcome-message');
+const heroPlayBtn = document.getElementById('hero-play-btn');
+const toastNotification = document.getElementById('toast-notification');
+const toastMessage = document.getElementById('toast-message');
 
 // Player
-const audioPlayer         = document.getElementById('audio-player');
-const playBtn             = document.getElementById('play-btn');
-const prevBtn             = document.getElementById('prev-btn');
-const nextBtn             = document.getElementById('next-btn');
-const shuffleBtn          = document.getElementById('shuffle-btn');
-const repeatBtn           = document.getElementById('repeat-btn');
-const progressSlider      = document.getElementById('progress-slider');
-const currentTimeLabel    = document.getElementById('current-time');
-const totalTimeLabel      = document.getElementById('total-time');
-const volumeSlider        = document.getElementById('volume-slider');
-const muteBtn             = document.getElementById('mute-btn');
-const playerCover         = document.getElementById('player-cover');
-const playerTitle         = document.getElementById('player-title');
-const playerArtist        = document.getElementById('player-artist');
-const playerLikeBtn       = document.getElementById('player-like-btn');
-const miniVisualizer      = document.getElementById('mini-visualizer'); // kept for compat
+const audioPlayer = document.getElementById('audio-player');
+const playBtn = document.getElementById('play-btn');
+const prevBtn = document.getElementById('prev-btn');
+const nextBtn = document.getElementById('next-btn');
+const shuffleBtn = document.getElementById('shuffle-btn');
+const repeatBtn = document.getElementById('repeat-btn');
+const progressSlider = document.getElementById('progress-slider');
+const currentTimeLabel = document.getElementById('current-time');
+const totalTimeLabel = document.getElementById('total-time');
+const volumeSlider = document.getElementById('volume-slider');
+const muteBtn = document.getElementById('mute-btn');
+const playerCover = document.getElementById('player-cover');
+const playerTitle = document.getElementById('player-title');
+const playerArtist = document.getElementById('player-artist');
+const playerLikeBtn = document.getElementById('player-like-btn');
+const miniVisualizer = document.getElementById('mini-visualizer'); // kept for compat
 
 // Mobile-specific
-const miniPlayer          = document.getElementById('mini-player');
-const miniCoverImg        = document.getElementById('mini-cover-img');
-const miniTitle           = document.getElementById('mini-title');
-const miniArtist          = document.getElementById('mini-artist');
-const miniPlayBtn         = document.getElementById('mini-play-btn');
-const miniProgressFill    = document.getElementById('mini-progress-fill');
-const nowPlayingScreen    = document.getElementById('now-playing-screen');
-const npBackdrop          = document.getElementById('np-backdrop');
-const npArtworkWrapper    = document.getElementById('np-artwork-wrapper');
-const headerAvatarBtn     = document.getElementById('header-avatar-btn');
-const profileDropdown     = document.getElementById('profile-dropdown');
+const miniPlayer = document.getElementById('mini-player');
+const miniCoverImg = document.getElementById('mini-cover-img');
+const miniTitle = document.getElementById('mini-title');
+const miniArtist = document.getElementById('mini-artist');
+const miniPlayBtn = document.getElementById('mini-play-btn');
+const miniProgressFill = document.getElementById('mini-progress-fill');
+const nowPlayingScreen = document.getElementById('now-playing-screen');
+const npBackdrop = document.getElementById('np-backdrop');
+const npArtworkWrapper = document.getElementById('np-artwork-wrapper');
+const headerAvatarBtn = document.getElementById('header-avatar-btn');
+const profileDropdown = document.getElementById('profile-dropdown');
 
 // ── YouTube IFrame API ──────────────────────────────────
 const ytTag = document.createElement('script');
@@ -225,7 +225,7 @@ loginForm.addEventListener('submit', async (e) => {
     const data = await apiRequest('/api/auth/login', 'POST', { username, password });
     loginUser(data.token, data.user);
     showToast(`Welcome back, ${data.user.username}!`);
-  } catch (_) {}
+  } catch (_) { }
 });
 
 registerForm.addEventListener('submit', async (e) => {
@@ -236,7 +236,7 @@ registerForm.addEventListener('submit', async (e) => {
     const data = await apiRequest('/api/auth/register', 'POST', { username, password });
     loginUser(data.token, data.user);
     showToast(`Welcome, ${data.user.username}!`);
-  } catch (_) {}
+  } catch (_) { }
 });
 
 function loginUser(token, user) {
@@ -261,7 +261,7 @@ function loginUser(token, user) {
       } else {
         loadForYouRecommendations();
       }
-    } catch (_) {}
+    } catch (_) { }
   }, 600);
 }
 
@@ -302,11 +302,11 @@ async function initApp() {
 }
 
 // ── ONBOARDING ───────────────────────────────────────────────────────────────
-const onboardingScreen  = document.getElementById('onboarding-screen');
-const obDirectorsList   = document.getElementById('ob-directors-list');
-const obContinueBtn     = document.getElementById('ob-continue-btn');
-const obSkipBtn         = document.getElementById('ob-skip-btn');
-const obCountEl         = document.getElementById('ob-count');
+const onboardingScreen = document.getElementById('onboarding-screen');
+const obDirectorsList = document.getElementById('ob-directors-list');
+const obContinueBtn = document.getElementById('ob-continue-btn');
+const obSkipBtn = document.getElementById('ob-skip-btn');
+const obCountEl = document.getElementById('ob-count');
 
 const obSelectedIds = new Set(); // tracks which director IDs are selected
 
@@ -407,7 +407,7 @@ obSkipBtn && obSkipBtn.addEventListener('click', () => {
 // ── FOR YOU RECOMMENDATIONS ───────────────────────────────────────────────────
 async function loadForYouRecommendations() {
   const forYouSection = document.getElementById('for-you-section');
-  const forYouRows    = document.getElementById('for-you-rows');
+  const forYouRows = document.getElementById('for-you-rows');
   if (!forYouSection || !forYouRows || !state.directorPreferences.length) return;
 
   forYouSection.style.display = '';
@@ -429,7 +429,7 @@ async function loadForYouRecommendations() {
           </div>
         </div>
         <div class="fy-songs-scroll" id="fy-scroll-${pref.director_id}">
-          ${[1,2,3,4].map(() => `
+          ${[1, 2, 3, 4].map(() => `
             <div class="fy-skeleton">
               <div class="fy-skeleton-img"></div>
               <div class="fy-skeleton-text" style="margin-top:8px"></div>
@@ -595,18 +595,18 @@ let currentSearchQuery = '';
 
 async function performSearch(query) {
   currentSearchQuery = query;
-  const browseHint     = document.getElementById('search-browse-hint');
-  const albumsSection  = document.getElementById('search-albums-section');
+  const browseHint = document.getElementById('search-browse-hint');
+  const albumsSection = document.getElementById('search-albums-section');
   const albumContainer = document.getElementById('search-albums-container');
-  const songsSection   = document.getElementById('search-songs-section');
-  const songsList      = document.getElementById('search-results-list');
-  const globalSection  = document.getElementById('global-results-section');
-  const globalGrid     = document.getElementById('global-search-results-grid');
+  const songsSection = document.getElementById('search-songs-section');
+  const songsList = document.getElementById('search-results-list');
+  const globalSection = document.getElementById('global-results-section');
+  const globalGrid = document.getElementById('global-search-results-grid');
 
   if (!query.trim()) {
-    browseHint    && (browseHint.style.display = '');
+    browseHint && (browseHint.style.display = '');
     albumsSection && (albumsSection.style.display = 'none');
-    songsSection  && (songsSection.style.display = 'none');
+    songsSection && (songsSection.style.display = 'none');
     globalSection && (globalSection.style.display = 'none');
     return;
   }
@@ -633,8 +633,8 @@ async function performSearch(query) {
       const albumHTML = allAlbumNames.map(album => {
         const allSongs = state.tracks.filter(t => t.album === album);
         if (!allSongs.length) return '';
-        const cover    = escapeHtml(allSongs[0].cover_url || 'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=400');
-        const artist   = escapeHtml(allSongs[0].artist || '');
+        const cover = escapeHtml(allSongs[0].cover_url || 'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=400');
+        const artist = escapeHtml(allSongs[0].artist || '');
         const totalMin = Math.round(allSongs.reduce((s, t) => s + (t.duration || 0), 0) / 60);
         return `
           <div class="album-full-card">
@@ -697,9 +697,9 @@ async function performSearch(query) {
 }
 
 function toggleAlbumCollapse(btn) {
-  const card   = btn.closest('.album-full-card');
+  const card = btn.closest('.album-full-card');
   const tracks = card.querySelector('.album-full-tracks');
-  const icon   = btn.querySelector('i');
+  const icon = btn.querySelector('i');
   const isHidden = tracks.style.display === 'none';
   tracks.style.display = isHidden ? '' : 'none';
   icon.setAttribute('data-lucide', isHidden ? 'chevron-up' : 'chevron-down');
@@ -722,7 +722,7 @@ function playAlbum(albumName) {
 function createSearchListItemHTML(track, index, trackList) {
   const cover = escapeHtml(track.cover_url || 'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=80');
   const trackJSON = JSON.stringify(track).replace(/"/g, '&quot;');
-  const listJSON  = JSON.stringify(trackList).replace(/"/g, '&quot;');
+  const listJSON = JSON.stringify(trackList).replace(/"/g, '&quot;');
   return `
     <div class="search-list-item" onclick="playFromTableList(${track.id},${index},${JSON.stringify(trackList).replace(/"/g, '&quot;')})">
       <img class="sli-cover" src="${cover}" alt="">
@@ -745,7 +745,7 @@ function createSearchListItemHTML(track, index, trackList) {
 function createGlobalListItemHTML(track, index) {
   const cover = escapeHtml(track.cover_url || 'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=80');
   const trackJSON = JSON.stringify(track).replace(/"/g, '&quot;');
-  const listJSON  = JSON.stringify(state.globalSearchResults).replace(/"/g, '&quot;');
+  const listJSON = JSON.stringify(state.globalSearchResults).replace(/"/g, '&quot;');
   return `
     <div class="search-list-item" onclick="playGlobalSong(${index})">
       <img class="sli-cover" src="${cover}" alt="">
@@ -784,7 +784,7 @@ async function loadLikedSongsView() {
     const data = await apiRequest('/api/tracks/liked');
     likedCountText.textContent = `${data.length} songs`;
     renderTracksTable(data, likedSongsListContainer, false);
-  } catch (_) {}
+  } catch (_) { }
 }
 
 // ── PLAYLISTS ────────────────────────────────────────────
@@ -796,7 +796,7 @@ createPlaylistBtn.addEventListener('click', async () => {
     await fetchPlaylists();
     renderPlaylists();
     showToast(`Playlist "${name}" created!`);
-  } catch (_) {}
+  } catch (_) { }
 });
 
 async function viewPlaylist(playlistId) {
@@ -808,7 +808,7 @@ async function viewPlaylist(playlistId) {
     switchTab('playlist-detail');
     renderTracksTable(data.tracks, playlistSongsListContainer, true);
     renderPlaylists();
-  } catch (_) {}
+  } catch (_) { }
 }
 
 deleteCurrentPlaylistBtn.addEventListener('click', async () => {
@@ -821,7 +821,7 @@ deleteCurrentPlaylistBtn.addEventListener('click', async () => {
     await fetchPlaylists();
     renderPlaylists();
     switchTab('library');
-  } catch (_) {}
+  } catch (_) { }
 });
 
 // ── TRACKS TABLE ─────────────────────────────────────────
@@ -868,7 +868,7 @@ function renderTracksTable(tracks, container, isPlaylistView = false) {
           ` : ''}
           <button class="table-action-btn"
             title="More options"
-            onclick="ctxOpenForTable(${JSON.stringify(track).replace(/"/g,'&quot;')}, ${i}, '${JSON.stringify(tracks).replace(/"/g,'&quot;')}', ${isPlaylistView})">
+            onclick="ctxOpenForTable(${JSON.stringify(track).replace(/"/g, '&quot;')}, ${i}, '${JSON.stringify(tracks).replace(/"/g, '&quot;')}', ${isPlaylistView})">
             <svg xmlns="http://www.w3.org/2000/svg" width="17" height="17" viewBox="0 0 24 24"
               fill="currentColor" stroke="none">
               <circle cx="12" cy="5" r="1.5"/><circle cx="12" cy="12" r="1.5"/><circle cx="12" cy="19" r="1.5"/>
@@ -884,30 +884,30 @@ function renderTracksTable(tracks, container, isPlaylistView = false) {
 }
 
 // ── CONTEXT MENU (Bottom Sheet) ──────────────────────────────────────────────
-let _ctxTrack      = null;  // currently shown track
-let _ctxTrackList  = null;  // queue context
+let _ctxTrack = null;  // currently shown track
+let _ctxTrackList = null;  // queue context
 let _ctxTrackIndex = 0;
 let _ctxIsPlaylist = false; // whether opened from playlist view
 
-const ctxOverlay       = document.getElementById('ctx-overlay');
-const ctxSheet         = document.getElementById('ctx-sheet');
-const ctxMainView      = document.getElementById('ctx-main-view');
-const ctxPlaylistView  = document.getElementById('ctx-playlist-view');
-const ctxPlOptions     = document.getElementById('ctx-playlist-options');
-const ctxRemoveOpt     = document.getElementById('ctx-remove-opt');
-const ctxHeartSvg      = document.getElementById('ctx-heart-svg');
-const ctxLikeBtn       = document.getElementById('ctx-like-btn');
+const ctxOverlay = document.getElementById('ctx-overlay');
+const ctxSheet = document.getElementById('ctx-sheet');
+const ctxMainView = document.getElementById('ctx-main-view');
+const ctxPlaylistView = document.getElementById('ctx-playlist-view');
+const ctxPlOptions = document.getElementById('ctx-playlist-options');
+const ctxRemoveOpt = document.getElementById('ctx-remove-opt');
+const ctxHeartSvg = document.getElementById('ctx-heart-svg');
+const ctxLikeBtn = document.getElementById('ctx-like-btn');
 
 function openContextMenu(track, index, trackList, isPlaylistView) {
-  _ctxTrack      = track;
-  _ctxTrackList  = Array.isArray(trackList) ? trackList : [track];
+  _ctxTrack = track;
+  _ctxTrackList = Array.isArray(trackList) ? trackList : [track];
   _ctxTrackIndex = index || 0;
   _ctxIsPlaylist = !!isPlaylistView;
 
   // Populate song info
   document.getElementById('ctx-song-img').src =
     track.cover_url || 'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=120';
-  document.getElementById('ctx-song-title').textContent  = track.title  || 'Unknown';
+  document.getElementById('ctx-song-title').textContent = track.title || 'Unknown';
   document.getElementById('ctx-song-artist').textContent = track.artist || '';
 
   // Update like button state
@@ -924,7 +924,7 @@ function openContextMenu(track, index, trackList, isPlaylistView) {
   ctxOverlay && ctxOverlay.classList.remove('hidden');
   requestAnimationFrame(() => {
     ctxOverlay && ctxOverlay.classList.add('open');
-    ctxSheet   && ctxSheet.classList.add('open');
+    ctxSheet && ctxSheet.classList.add('open');
   });
   lucide.createIcons();
 }
@@ -939,7 +939,7 @@ function _ctxRefreshLikeBtn() {
 
 function closeContextMenu() {
   ctxOverlay && ctxOverlay.classList.remove('open');
-  ctxSheet   && ctxSheet.classList.remove('open');
+  ctxSheet && ctxSheet.classList.remove('open');
   setTimeout(() => {
     ctxOverlay && ctxOverlay.classList.add('hidden');
   }, 320);
@@ -949,7 +949,7 @@ function closeContextMenu() {
 function ctxOpenForTable(track, index, tracksJSONStr, isPlaylistView) {
   let list = [track];
   if (tracksJSONStr) {
-    try { list = JSON.parse(tracksJSONStr.replace(/&quot;/g, '"')); } catch (_) {}
+    try { list = JSON.parse(tracksJSONStr.replace(/&quot;/g, '"')); } catch (_) { }
   }
   openContextMenu(track, index, list, isPlaylistView);
 }
@@ -981,7 +981,7 @@ async function ctxToggleLike() {
 
 function ctxGoToPlaylist() {
   // Switch to playlist sub-view
-  ctxMainView  && ctxMainView.classList.add('hidden');
+  ctxMainView && ctxMainView.classList.add('hidden');
   ctxPlaylistView && ctxPlaylistView.classList.remove('hidden');
   // Render playlist options
   if (ctxPlOptions) {
@@ -1023,14 +1023,14 @@ async function ctxAddToSpecificPlaylist(playlistId) {
 
 function ctxBackToMain() {
   ctxPlaylistView && ctxPlaylistView.classList.add('hidden');
-  ctxMainView     && ctxMainView.classList.remove('hidden');
+  ctxMainView && ctxMainView.classList.remove('hidden');
 }
 
 function ctxShare() {
   if (!_ctxTrack) return;
   const text = `${_ctxTrack.title} — ${_ctxTrack.artist}`;
   if (navigator.share) {
-    navigator.share({ title: text, text: `Listen to ${text} on Musify!` }).catch(() => {});
+    navigator.share({ title: text, text: `Listen to ${text} on Musify!` }).catch(() => { });
   } else {
     navigator.clipboard.writeText(text).then(() => showToast('Copied to clipboard!')).catch(() => showToast(`${text}`));
   }
@@ -1098,7 +1098,7 @@ function closeQueueView() {
 function renderQueue() {
   const container = document.getElementById('queue-list-container');
   if (!container) return;
-  
+
   if (!state.activeQueue || state.activeQueue.length === 0) {
     container.innerHTML = `<p style="text-align:center;color:var(--text-muted);padding:20px;font-size:0.9rem;">The queue is empty.</p>`;
     return;
@@ -1109,7 +1109,7 @@ function renderQueue() {
     const isActive = i === state.queueIndex;
     const isPast = i < state.queueIndex;
     if (isPast) return ''; // don't show past songs in the generic "Playing Next" queue for simplicity, or we can show them with low opacity.
-    
+
     const cover = escapeHtml(track.cover_url || 'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=80');
     return `
       <div class="queue-item ${isActive ? 'active-q' : ''}" onclick="playFromQueue(${i})">
@@ -1137,18 +1137,18 @@ function playFromQueue(index) {
 
 function removeFromQueue(index) {
   if (index === state.queueIndex) return; // can't remove currently playing this easily
-  
+
   const track = state.activeQueue[index];
   state.activeQueue.splice(index, 1);
   if (state.originalQueue) {
     const origIndex = state.originalQueue.findIndex(t => t.id === track.id);
     if (origIndex > -1) state.originalQueue.splice(origIndex, 1);
   }
-  
+
   if (index < state.queueIndex) {
     state.queueIndex--;
   }
-  
+
   renderQueue();
   showToast('Removed from queue');
 }
@@ -1160,7 +1160,7 @@ async function addTrackToPlaylist(e, trackId, playlistId) {
     await apiRequest(`/api/playlists/${playlistId}/tracks`, 'POST', { trackId });
     showToast('Added to playlist!');
     if (state.currentPlaylistId === playlistId) viewPlaylist(playlistId);
-  } catch (_) {}
+  } catch (_) { }
 }
 
 async function removeTrackFromCurrentPlaylist(trackId, e) {
@@ -1171,7 +1171,7 @@ async function removeTrackFromCurrentPlaylist(trackId, e) {
     showToast('Removed from playlist.');
     viewPlaylist(state.currentPlaylistId);
     fetchPlaylists();
-  } catch (_) {}
+  } catch (_) { }
 }
 
 // ── LIKE ─────────────────────────────────────────────────
@@ -1209,7 +1209,7 @@ async function toggleLikeTrack(trackOrId, e) {
 
     const cur = state.activeQueue[state.queueIndex];
     if (cur && cur.id === trackId) updatePlayerUI();
-  } catch (_) {}
+  } catch (_) { }
 }
 
 // ── PLAYBACK ─────────────────────────────────────────────
@@ -1353,7 +1353,7 @@ function updatePlayerUI() {
   }
 
   lucide.createIcons();
-  
+
   // Update Queue View if it's open
   const qOverlay = document.getElementById('queue-overlay');
   if (qOverlay && !qOverlay.classList.contains('hidden')) {
@@ -1530,7 +1530,53 @@ async function addGlobalTrackToPlaylist(e, index, playlistId) {
     await apiRequest(`/api/playlists/${playlistId}/tracks`, 'POST', { trackId: r.id });
     showToast('Added to playlist!');
     performSearch(searchInputLargeField.value);
-  } catch (_) {}
+  } catch (_) { }
+}
+
+// ── MEDIA SESSION API FOR BACKGROUND PLAYBACK ─────────────
+function updateMediaSession(now = null, duration = null) {
+  if (!('mediaSession' in navigator)) return;
+
+  const track = state.activeQueue[state.queueIndex];
+  if (!track) {
+    navigator.mediaSession = null;
+    return;
+  }
+
+  const title = track.title || 'Unknown Title';
+  const artist = track.artist || 'Unknown Artist';
+  const album = track.album || 'Unknown Album';
+  const artwork = track.cover_url
+    ? { src: track.cover_url, sizes: '512x512', type: 'image/jpeg' }
+    : null;
+
+  navigator.mediaSession.metadata = new MediaMetadata({
+    title: title,
+    artist: artist,
+    album: album,
+    artwork: artwork
+  });
+
+  if (now !== null && duration !== null) {
+    navigator.mediaSession.position = now;
+    navigator.mediaSession.setPositionState({
+      duration: duration,
+      seekable: [{ start: 0, end: duration }]
+    });
+  }
+
+  // Handle playback controls
+  navigator.mediaSession.setActionState('play', state.isPlaying ? 'paused' : 'playing');
+  navigator.mediaSession.setActionState('pause', state.isPlaying ? 'paused' : 'playing');
+  navigator.mediaSession.setActionState('next', 'enabled');
+  navigator.mediaSession.setActionState('previous', 'enabled');
+}
+
+// ── HIDE MEDIA SESSION WHEN NOT PLAYING ───────────────────
+function hideMediaSession() {
+  if ('mediaSession' in navigator) {
+    navigator.mediaSession = null;
+  }
 }
 
 // ── AUTH CHECK ON LOAD ───────────────────────────────────
