@@ -116,7 +116,7 @@ app.get('/api/auth/me', authenticateToken, (req, res) => {
   res.json({ user: req.user });
 });
 
-// ── PREFERENCES API ──────────────────────────────────────────────────────────
+// ── PREFERENCES API ─────────────────────────────────────────────────────────
 
 // Get user's selected music directors
 app.get('/api/preferences', authenticateToken, (req, res) => {
