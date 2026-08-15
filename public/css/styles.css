@@ -877,6 +877,75 @@ img {
   height: 13px;
 }
 
+/* Play / Shuffle action row for playlist detail */
+.playlist-action-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-top: 12px;
+}
+
+.playlist-play-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  background: linear-gradient(135deg, var(--primary), var(--secondary));
+  color: #fff;
+  border: none;
+  border-radius: 50px;
+  padding: 9px 20px;
+  font-family: var(--font-heading);
+  font-size: 0.88rem;
+  font-weight: 600;
+  cursor: pointer;
+  box-shadow: 0 4px 16px rgba(139, 92, 246, 0.4);
+  transition: var(--transition);
+}
+
+.playlist-play-btn:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 6px 22px rgba(139, 92, 246, 0.55);
+}
+
+.playlist-play-btn:active {
+  transform: scale(0.97);
+}
+
+.playlist-play-btn svg {
+  width: 15px;
+  height: 15px;
+}
+
+.playlist-shuffle-btn {
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid var(--border);
+  color: var(--text-muted);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: var(--transition);
+}
+
+.playlist-shuffle-btn:hover {
+  color: var(--primary);
+  border-color: var(--border-focus);
+}
+
+.playlist-shuffle-btn.active {
+  color: var(--primary);
+  background: rgba(139, 92, 246, 0.15);
+  border-color: rgba(139, 92, 246, 0.4);
+}
+
+.playlist-shuffle-btn i {
+  width: 17px;
+  height: 17px;
+}
+
 /* ==============================
    ALBUM DETAIL VIEW
    ============================== */

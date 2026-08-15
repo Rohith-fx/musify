@@ -286,6 +286,18 @@
             <span class="page-hero-label">PLAYLIST</span>
             <h1 id="playlist-detail-title" class="page-hero-title">Playlist</h1>
             <p id="playlist-detail-count" class="page-hero-count">0 songs</p>
+            <div class="playlist-action-row">
+              <button id="play-playlist-btn" class="playlist-play-btn" onclick="playCurrentPlaylist()">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="currentColor"
+                  stroke="none">
+                  <polygon points="5,3 19,12 5,21" />
+                </svg>
+                <span>Play</span>
+              </button>
+              <button id="playlist-shuffle-btn" class="playlist-shuffle-btn" title="Shuffle" onclick="toggleShuffle()">
+                <i data-lucide="shuffle"></i>
+              </button>
+            </div>
             <button id="delete-current-playlist-btn" class="btn-delete-playlist">
               <i data-lucide="trash-2"></i>
               <span>Delete</span>
@@ -332,7 +344,7 @@
           <span id="mini-artist" class="mini-artist">Select a song</span>
         </div>
         <div class="mini-controls" onclick="event.stopPropagation()">
-          <button id="mini-shuffle-btn" title="Shuffle" class="active" onclick="toggleShuffle()">
+          <button id="mini-shuffle-btn" title="Shuffle" onclick="toggleShuffle()">
             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none"
               stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
               <path d="M2 18h1.4c1.3 0 2.5-.6 3.3-1.7l14.2-12.6c.8-1 2-1.7 3.3-1.7H22" />

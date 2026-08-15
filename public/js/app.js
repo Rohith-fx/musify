@@ -12,6 +12,7 @@ let state = {
   likedTrackIds: new Set(),
   currentTab: 'home',
   currentPlaylistId: null,
+  playlistTracks: [],
   activeQueue: [],
   originalQueue: [],
   queueIndex: -1,
@@ -104,6 +105,7 @@ const miniTitle = document.getElementById('mini-title');
 const miniArtist = document.getElementById('mini-artist');
 const miniPlayBtn = document.getElementById('mini-play-btn');
 const miniProgressFill = document.getElementById('mini-progress-fill');
+const miniShuffleBtn = document.getElementById('mini-shuffle-btn');
 const nowPlayingScreen = document.getElementById('now-playing-screen');
 const npBackdrop = document.getElementById('np-backdrop');
 const npArtworkWrapper = document.getElementById('np-artwork-wrapper');
@@ -868,12 +870,22 @@ async function viewPlaylist(playlistId) {
   try {
     const data = await apiRequest(`/api/playlists/${playlistId}/tracks`);
     state.currentPlaylistId = playlistId;
+    state.playlistTracks = data.tracks || [];
     playlistDetailTitle.textContent = data.playlist.name;
     playlistDetailCount.textContent = `${data.tracks.length} songs`;
     switchTab('playlist-detail');
     renderTracksTable(data.tracks, playlistSongsListContainer, true);
     renderPlaylists();
+    updateShuffleButtons();
   } catch (_) { }
+}
+
+function playCurrentPlaylist() {
+  if (!state.playlistTracks || !state.playlistTracks.length) {
+    showToast('No songs in this playlist.');
+    return;
+  }
+  playTrackNow(state.playlistTracks[0], state.playlistTracks);
 }
 
 deleteCurrentPlaylistBtn.addEventListener('click', async () => {
@@ -1409,7 +1421,7 @@ function updatePlayerUI() {
   }
 
   // Shuffle / Repeat
-  shuffleBtn.classList.toggle('active', state.isShuffle);
+  updateShuffleButtons();
   repeatBtn.classList.toggle('active', !!state.isRepeat);
   if (state.isRepeat === 'one') {
     repeatBtn.innerHTML = `<i data-lucide="repeat-1"></i>`;
@@ -1482,13 +1494,7 @@ prevBtn.addEventListener('click', () => {
 });
 
 // ── SHUFFLE / REPEAT ─────────────────────────────────────
-shuffleBtn.addEventListener('click', () => {
-  state.isShuffle = !state.isShuffle;
-  const cur = state.activeQueue[state.queueIndex];
-  if (state.isShuffle) { shuffleQueue(state.originalQueue, cur); showToast('Shuffle on'); }
-  else { state.activeQueue = [...state.originalQueue]; state.queueIndex = state.activeQueue.findIndex(t => t.id === cur?.id); showToast('Shuffle off'); }
-  updatePlayerUI();
-});
+shuffleBtn.addEventListener('click', toggleShuffle);
 
 function shuffleQueue(queue, active) {
   let s = [...queue];
@@ -1513,6 +1519,15 @@ function toggleShuffle() {
     showToast('Shuffle off');
   }
   updatePlayerUI();
+  updateShuffleButtons();
+}
+
+// Keep all shuffle toggle buttons (now-playing, mini-player, playlist detail) in sync
+function updateShuffleButtons() {
+  if (shuffleBtn) shuffleBtn.classList.toggle('active', state.isShuffle);
+  if (miniShuffleBtn) miniShuffleBtn.classList.toggle('active', state.isShuffle);
+  const plShuffleBtn = document.getElementById('playlist-shuffle-btn');
+  if (plShuffleBtn) plShuffleBtn.classList.toggle('active', state.isShuffle);
 }
 
 repeatBtn.addEventListener('click', () => {
