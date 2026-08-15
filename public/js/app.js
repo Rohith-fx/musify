@@ -619,8 +619,65 @@ async function performSearch(query) {
 
     state.tracks = local;
 
+    // ── FILTER SEARCH RESULTS BY RELEVANCE ───────────────────
+    // Calculate similarity score for each track and filter to keep only strong matches
+    const MIN_SIMILARITY = 0.85; // 85% threshold
+
+    function calculateSimilarity(a, b) {
+      if (!a || !b) return 0;
+      const aLower = a.toLowerCase();
+      const bLower = b.toLowerCase();
+
+      // Exact match = 100%
+      if (aLower === bLower) return 1;
+
+      // Check if one is substring of other
+      if (aLower.includes(bLower) || bLower.includes(aLower)) {
+        // Return proportion of shorter string that matches
+        const shorter = aLower.length <= bLower.length ? aLower : bLower;
+        const longer = aLower.length <= bLower.length ? bLower : aLower;
+        const matchLen = longer.split(shorter).length - 1;
+        return 1 - (matchLen / longer.length);
+      }
+
+      // Calculate character-level similarity (simple Jaccard-like on trigrams)
+      function getTrigrams(str) {
+        const s = str.toLowerCase();
+        const trigrams = new Set();
+        for (let i = 0; i < s.length - 2; i++) {
+          trigrams.add(s.substring(i, i + 3));
+        }
+        return trigrams;
+      }
+
+      const trigramsA = getTrigrams(aLower);
+      const trigramsB = getTrigrams(bLower);
+      const intersection = new Set([...trigramsA].filter(x => trigramsB.has(x)));
+      const union = new Set([...trigramsA, ...trigramsB]);
+      if (union.size === 0) return 0;
+      return intersection.size / union.size;
+    }
+
+    // Apply similarity filtering to all tracks
+    const scoredTracks = local.map(t => ({
+      track: t,
+      similarity: Math.max(
+        calculateSimilarity(t.title, query),
+        calculateSimilarity(t.album || '', query)
+      )
+    }));
+
+    // Filter to keep only tracks with high similarity and sort by score descending
+    const filteredTracks = scoredTracks
+      .filter(item => item.similarity >= MIN_SIMILARITY)
+      .sort((a, b) => b.similarity - a.similarity)
+      .map(item => item.track);
+
+    // Use filteredTracks instead of local for the rest of the search
+    const tracks = filteredTracks.length > 0 ? filteredTracks : local;
+
     // ── 1. FIND TOP MATCHING SONG ────────────────────────
-    const topSong = local.find(t => t.title.toLowerCase() === query.toLowerCase());
+    const topSong = tracks.find(t => t.title.toLowerCase() === query.toLowerCase());
     const topSongAlbum = topSong?.album || '';
 
     // ── 2. RENDER TOP MATCHING SONG ──────────────────────
@@ -635,7 +692,7 @@ async function performSearch(query) {
             ${topSong.album ? `<p class="search-top-song-album">Album: ${escapeHtml(topSong.album)}</p>` : ''}
             <p class="search-top-song-artist">${escapeHtml(topSong.artist)}</p>
           </div>
-          <button class="search-top-song-play" onclick="playFromTableList(${topSong.id}, 0, ${JSON.stringify(local).replace(/"/g, '"')})">
+          <button class="search-top-song-play" onclick="playFromTableList(${topSong.id}, 0, ${JSON.stringify(tracks).replace(/"/g, '"')})">
             Play
           </button>
         </div>`
@@ -643,7 +700,7 @@ async function performSearch(query) {
 
     // ── 3. FIND ALL SONGS FROM THE SAME ALBUM ─────────────
     const albumSongs = topSongAlbum
-      ? local.filter(t => t.album === topSongAlbum && t.id !== topSong.id)
+      ? tracks.filter(t => t.album === topSongAlbum && t.id !== topSong.id)
       : [];
 
     // ── 4. RENDER ALBUM SECTION ────────────────────────────
@@ -690,7 +747,7 @@ async function performSearch(query) {
 
     // ── 6. RENDER STANDALONE SONGS (not in the top album) ────
     const shownIds = new Set(albumSongs.map(t => t.id));
-    const standaloneSongs = local.filter(t => !shownIds.has(t.id));
+    const standaloneSongs = tracks.filter(t => !shownIds.has(t.id));
 
     let songsHTML = '';
     if (standaloneSongs.length && songsSection && songsList) {
