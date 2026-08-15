@@ -617,74 +617,92 @@ async function performSearch(query) {
     const local = await apiRequest(`/api/tracks?search=${encodeURIComponent(query)}`);
     if (currentSearchQuery !== query) return; // Prevent race conditions
 
+    state.tracks = local;
 
-    // ── 1. ALBUM SECTION (shown first, auto-expanded) ────
-    const albumNamesFromResults = [...new Set(local.map(t => t.album).filter(Boolean))];
-    const qLow = query.toLowerCase();
-    // Also match albums by their name even if no song title matched
-    const albumNamesFromDirectMatch = [...new Set(
-      state.tracks
-        .filter(t => t.album && t.album.toLowerCase().includes(qLow))
-        .map(t => t.album)
-    )];
-    const allAlbumNames = [...new Set([...albumNamesFromResults, ...albumNamesFromDirectMatch])];
+    // ── 1. FIND TOP MATCHING SONG ────────────────────────
+    const topSong = local.find(t => t.title.toLowerCase() === query.toLowerCase());
+    const topSongAlbum = topSong?.album || '';
 
-    if (allAlbumNames.length && albumsSection && albumContainer) {
-      const albumHTML = allAlbumNames.map(album => {
-        const allSongs = state.tracks.filter(t => t.album === album);
-        if (!allSongs.length) return '';
-        const cover = escapeHtml(allSongs[0].cover_url || 'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=400');
-        const artist = escapeHtml(allSongs[0].artist || '');
-        const totalMin = Math.round(allSongs.reduce((s, t) => s + (t.duration || 0), 0) / 60);
-        return `
-          <div class="album-full-card">
-            <div class="album-full-backdrop" style="background-image:url('${cover}')"></div>
-            <div class="album-full-header">
-              <img class="album-full-cover" src="${cover}" alt="${escapeHtml(album)}">
-              <div class="album-full-meta">
-                <span class="album-full-label">ALBUM</span>
-                <div class="album-full-name">${escapeHtml(album)}</div>
-                <div class="album-full-sub">${artist} &bull; ${allSongs.length} songs &bull; ${totalMin} min</div>
-                <div class="album-full-actions">
-                  <button class="album-play-all-btn"
-                    onclick="playAlbum('${escapeHtml(album).replace(/'/g, "&apos;")}')"
-                    title="Play All">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="currentColor" stroke="none"><polygon points="5,3 19,12 5,21"/></svg>
-                    Play All
-                  </button>
-                  <button class="album-collapse-btn" onclick="toggleAlbumCollapse(this)" title="Collapse">
-                    <i data-lucide="chevron-up"></i>
-                  </button>
+    // ── 2. RENDER TOP MATCHING SONG ──────────────────────
+    const topSongHTML = topSong
+      ? `
+        <div class="search-top-song-result">
+          <div class="search-top-song-img">
+            <img src="${escapeHtml(topSong.cover_url || 'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=200')}" alt="${escapeHtml(topSong.title)}">
+          </div>
+          <div class="search-top-song-info">
+            <h3>${escapeHtml(topSong.title)}</h3>
+            ${topSong.album ? `<p class="search-top-song-album">Album: ${escapeHtml(topSong.album)}</p>` : ''}
+            <p class="search-top-song-artist">${escapeHtml(topSong.artist)}</p>
+          </div>
+          <button class="search-top-song-play" onclick="playFromTableList(${topSong.id}, 0, ${JSON.stringify(local).replace(/"/g, '"')})">
+            Play
+          </button>
+        </div>`
+      : '';
+
+    // ── 3. FIND ALL SONGS FROM THE SAME ALBUM ─────────────
+    const albumSongs = topSongAlbum
+      ? local.filter(t => t.album === topSongAlbum && t.id !== topSong.id)
+      : [];
+
+    // ── 4. RENDER ALBUM SECTION ────────────────────────────
+    let albumSectionHTML = '';
+    if (topSongAlbum && albumSongs.length > 0) {
+      const firstSongCover = escapeHtml(albumSongs[0].cover_url || 'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=200');
+      const artist = escapeHtml(albumSongs[0].artist || '');
+      const totalMin = Math.round(albumSongs.reduce((s, t) => s + (t.duration || 0), 0) / 60);
+      const allAlbumSongs = [topSong, ...albumSongs];
+
+      albumSectionHTML = `
+        <div class="full-album-below-search">
+          <div class="full-album-header">
+            <img class="full-album-cover" src="${firstSongCover}" alt="${escapeHtml(topSongAlbum)}">
+            <div class="full-album-details">
+              <span class="full-album-label">FULL ALBUM</span>
+              <h3 class="full-album-name">${escapeHtml(topSongAlbum)}</h3>
+              <p class="full-album-artist">${artist} &bull; ${allAlbumSongs.length} songs &bull; ${totalMin} min</p>
+            </div>
+          </div>
+          <div class="full-album-tracks">
+            ${allAlbumSongs.map((t, i) => `
+              <div class="full-album-track">
+                <img class="track-cover" src="${escapeHtml(t.cover_url || 'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=80')}" alt="${escapeHtml(t.title)}">
+                <div class="track-info">
+                  <span class="track-number">${i + 1}</span>
+                  <span class="track-title">${escapeHtml(t.title)}</span>
+                  <span class="track-artist">${escapeHtml(t.artist)}</span>
                 </div>
+                <button class="track-play-btn" onclick="playFromTableList(${t.id}, ${i}, ${JSON.stringify(allAlbumSongs).replace(/"/g, '"')})">
+                  Play
+                </button>
               </div>
-            </div>
-            <div class="album-full-tracks">
-              ${allSongs.map((t, i) => createSearchListItemHTML(t, i, allSongs)).join('')}
-            </div>
-          </div>`;
-      }).filter(Boolean).join('');
-      albumContainer.innerHTML = albumHTML;
-      albumsSection.style.display = '';
-    } else if (albumsSection) {
-      albumsSection.style.display = 'none';
+            `).join('')}
+          </div>
+        </div>`;
     }
 
-    // ── 2. SONGS SECTION (songs not already in an album above) ───
-    const shownIds = new Set(
-      allAlbumNames.flatMap(a => state.tracks.filter(t => t.album === a).map(t => t.id))
-    );
+    // ── 5. RENDER ALBUM SECTION TO PAGE ────────────────────
+    if (albumsSection && albumContainer) {
+      albumContainer.innerHTML = topSongHTML + albumSectionHTML;
+      albumsSection.style.display = !!albumSectionHTML;
+    }
+
+    // ── 6. RENDER STANDALONE SONGS (not in the top album) ────
+    const shownIds = new Set(albumSongs.map(t => t.id));
     const standaloneSongs = local.filter(t => !shownIds.has(t.id));
+
+    let songsHTML = '';
     if (standaloneSongs.length && songsSection && songsList) {
       searchResultsTitle.textContent = `Songs matching "${query}"`;
-      songsList.innerHTML = standaloneSongs.map((t, i) => createSearchListItemHTML(t, i, standaloneSongs)).join('');
+      songsHTML = standaloneSongs.map((t, i) => createSearchListItemHTML(t, i, standaloneSongs)).join('');
       songsSection.style.display = '';
     } else if (songsSection) {
       songsSection.style.display = 'none';
     }
 
-    // ── 3. GLOBAL SECTION ────────────────────────────────
+    // ── 7. GLOBAL SECTION ────────────────────────────────
     globalSection && (globalSection.style.display = '');
-    globalGrid.innerHTML = `<p class="empty-hint">Searching globally...</p>`;
     const global = await apiRequest(`/api/tracks/global-search?q=${encodeURIComponent(query)}`);
     if (currentSearchQuery !== query) return; // Prevent race conditions
     state.globalSearchResults = global;
@@ -694,16 +712,6 @@ async function performSearch(query) {
 
     lucide.createIcons();
   } catch (e) { console.error('Search error:', e); }
-}
-
-function toggleAlbumCollapse(btn) {
-  const card = btn.closest('.album-full-card');
-  const tracks = card.querySelector('.album-full-tracks');
-  const icon = btn.querySelector('i');
-  const isHidden = tracks.style.display === 'none';
-  tracks.style.display = isHidden ? '' : 'none';
-  icon.setAttribute('data-lucide', isHidden ? 'chevron-up' : 'chevron-down');
-  lucide.createIcons();
 }
 
 function toggleAlbumExpand(header) {
